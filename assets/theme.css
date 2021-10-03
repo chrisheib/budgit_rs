@@ -2,3 +2,30 @@ body {
     color: white;
     background: #212529;
 }
+
+.main {
+    margin-top: 58px;
+    margin-bottom: 58px;
+}
+
+.main-kat {
+    padding: 2px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    font-size: larger;
+}
+
+.sub-kat {
+    font-size: medium;
+    background: #003;
+    padding-left: 10px;
+    border-bottom: 1px solid #33A;
+}
+
+nav.fixed-bottom {
+    border-top: 1px solid #444;
+}
+
+nav.fixed-top {
+    border-bottom: 1px solid #444;
+}
