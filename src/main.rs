@@ -1,11 +1,12 @@
 use actix_files::NamedFile;
+use actix_session::{CookieSession, Session};
 use actix_web::{
     error::{ErrorInternalServerError, ErrorNotFound},
     get,
     http::header::{ContentDisposition, DispositionParam, DispositionType},
     web, App, Error, HttpResponse, HttpServer,
 };
-use db::adb_create_tables;
+use data::create_tables;
 use liquid::{object, Object, ParserBuilder};
 use std::path::Path;
 
@@ -20,8 +21,10 @@ const GL_PORT: i16 = 83i16;
 async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
         App::new()
+            .wrap(CookieSession::signed(&[0; 32]).secure(false))
             .service(net_main)
             .service(net_init)
+            .service(net_set_month)
             .service(net_asset)
             .service(net_404)
     })
@@ -32,10 +35,26 @@ async fn main() -> std::io::Result<()> {
 }
 
 #[get("/")]
-async fn net_main() -> Result<HttpResponse, Error> {
-    let a = get_all_main_categories()?;
-    let r = render_with_theme("html/index.liquid", object!({ "categories": a }))?;
+async fn net_main(session: Session) -> Result<HttpResponse, Error> {
+    let month = session.get::<u16>("month")?.unwrap_or(0);
+    let year = session.get::<u16>("year")?.unwrap_or(21);
+
+    let a = get_all_main_categories(year, month)?;
+    let r = render_with_theme(
+        "html/index.liquid",
+        object!({"month": month, "year": year, "categories": a }),
+    )?;
     Ok(HttpResponse::Ok().body(r))
+}
+
+#[get("/month/{year}/{month}")]
+async fn net_set_month(
+    session: Session,
+    web::Path((year, month)): web::Path<(u32, u32)>,
+) -> Result<HttpResponse, Error> {
+    session.set("year", year)?;
+    session.set("month", month)?;
+    Ok(HttpResponse::Found().header("Location", "/").finish())
 }
 
 fn render_with_theme(path: &str, data: Object) -> Result<String, Error> {
@@ -62,7 +81,7 @@ fn render_with_theme(path: &str, data: Object) -> Result<String, Error> {
     Ok(r)
 }
 
-#[get("/{id}")]
+#[get("/{path}")]
 async fn net_asset(web::Path(path): web::Path<String>) -> Result<NamedFile, Error> {
     let p = &format!("assets/{}", path);
     let p = Path::new(p);
@@ -87,7 +106,7 @@ async fn net_asset(web::Path(path): web::Path<String>) -> Result<NamedFile, Erro
 
 #[get("/init")]
 async fn net_init() -> Result<String, Error> {
-    adb_create_tables()?;
+    create_tables()?;
     Ok("Init successfull!".to_string())
 }
 

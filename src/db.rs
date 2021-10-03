@@ -70,6 +70,7 @@ pub fn adb_str_read(sql: &str) -> actix_web::Result<String, Error> {
     errconv(db_str_read(sql))
 }
 
+#[allow(dead_code)]
 fn db_execute(sql: &str) -> Result<()> {
     let conn = db_con()?;
     conn.execute(sql, [])
@@ -77,27 +78,25 @@ fn db_execute(sql: &str) -> Result<()> {
     Ok(())
 }
 
+#[allow(dead_code)]
 pub fn adb_execute(sql: &str) -> actix_web::Result<(), Error> {
     errconv(db_execute(sql))
 }
 
+#[allow(dead_code)]
+fn db_execute_batch(sql: &str) -> Result<()> {
+    let conn = db_con()?;
+    conn.execute_batch(sql)
+        .wrap_err(format!("db_execute: {}", sql))?;
+    Ok(())
+}
+
+#[allow(dead_code)]
+pub fn adb_execute_batch(sql: &str) -> actix_web::Result<(), Error> {
+    errconv(db_execute_batch(sql))
+}
+
+#[allow(dead_code)]
 fn db_con() -> Result<Connection> {
     Connection::open("budgit_rs.sqlite").wrap_err("get_db_con")
-}
-
-pub fn adb_con() -> actix_web::Result<Connection, Error> {
-    errconv(db_con())
-}
-
-pub fn adb_create_tables() -> Result<(), Error> {
-    let s = "CREATE TABLE konto (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT);
-    CREATE TABLE hauptkat (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, notiz TEXT, anzeige TEXT);
-    CREATE TABLE unterkat (id INTEGER PRIMARY KEY AUTOINCREMENT, hauptkatid INTEGER, name TEXT, notiz TEXT, anzeige TEXT);
-    CREATE TABLE unterkat_monat (id INTEGER PRIMARY KEY AUTOINCREMENT, subkatid INTEGER, jahr TEXT, monat TEXT, betrag REAL);
-    CREATE TABLE zahlempf (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, unterkatid INTEGER, anzeigen TEXT);
-    CREATE TABLE eintrag (id INTEGER PRIMARY KEY AUTOINCREMENT, kontoid INTEGER, unterkatid INTEGER, splitid INTEGER, zahlempf TEXT, datum DATE, betrag REAL, richtung TEXT);
-    CREATE TABLE split (id INTEGER PRIMARY KEY AUTOINCREMENT, kontoid INTEGER, unterkatid INTEGER, zahlempfid INTEGER, betrag REAL);
-    CREATE TABLE wiederkehrend (id INTEGER PRIMARY KEY AUTOINCREMENT, typ INTEGER, nextdatum DATE, kontoid INTEGER, unterkatid INTEGER, splitid INTEGER, zahlempfid INTEGER, betrag REAL, richtung TEXT, zielbetrag REAL);";
-
-    adb_execute(s)
 }
