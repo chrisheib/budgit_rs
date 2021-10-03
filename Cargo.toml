@@ -1,0 +1,17 @@
+[package]
+name = "budgit_rs"
+version = "0.1.0"
+authors = ["STSchiff <chrisheib@gmx.de>"]
+edition = "2018"
+
+[profile.release]
+lto = true
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+actix-web = "3.3.2"
+actix-files = "0.5.0"
+rusqlite = {version = "0.25.3", features = ["bundled"]}
+stable-eyre = "0.2.2"
+liquid = "0.23.0"
