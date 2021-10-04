@@ -1,0 +1,17 @@
+<nav class="navbar fixed-top navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">BUDGIT!!!</a>
+        <a class="btn btn-primary" href="/add_subcat/{{category.id}}" role="button">+</a>
+    </div>
+</nav>
+<div>
+    <h1>{{category.name}}</h1>
+</div>
+<div class="bg-dark d-grid gap-2">
+    {% for s in category.sc %}
+    <div class="container-fluid">
+        <a class="" href="/">{{s.name}}</a>
+        <a class="btn btn-danger" href="/del_subcat/{{category.id}}/{{s.id}}" role="button">-</a>
+    </div>
+    {% endfor %}
+</div>

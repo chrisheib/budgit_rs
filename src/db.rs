@@ -71,16 +71,22 @@ pub fn adb_str_read(sql: &str) -> actix_web::Result<String, Error> {
 }
 
 #[allow(dead_code)]
-fn db_execute(sql: &str) -> Result<()> {
+fn db_execute<P>(sql: &str, p: P) -> Result<()>
+where
+    P: Params,
+{
     let conn = db_con()?;
-    conn.execute(sql, [])
+    conn.execute(sql, p)
         .wrap_err(format!("db_execute: {}", sql))?;
     Ok(())
 }
 
 #[allow(dead_code)]
-pub fn adb_execute(sql: &str) -> actix_web::Result<(), Error> {
-    errconv(db_execute(sql))
+pub fn adb_execute<P>(sql: &str, p: P) -> actix_web::Result<(), Error>
+where
+    P: Params,
+{
+    errconv(db_execute(sql, p))
 }
 
 #[allow(dead_code)]

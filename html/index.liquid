@@ -1,7 +1,8 @@
 <nav class="navbar fixed-top navbar-dark bg-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="#">BUDGIT!!!</a>
+        <a class="navbar-brand" href="/">BUDGIT!!!</a>
         <div>
+            <a class="btn btn-primary" href="/add_maincat" role="button">+</a>
             <div class="btn-group">
                 <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"
                     aria-expanded="false">
@@ -53,13 +54,15 @@
 
 <div class="col">
     {% for c in categories %}
-    <div class="main-kat">
-        {{c.name}}
-        {% for s in c.sc %}
-        <div class="sub-kat">
-            {{s.name}}
+    <a href="/maincat/{{ c.id }}">
+        <div class="main-kat">
+            {{c.name}}
+            {% for s in c.sc %}
+            <div class="sub-kat">
+                {{s.name}}
+            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
-    </div>
+    </a>
     {% endfor %}
 </div>

@@ -526,6 +526,7 @@ dependencies = [
  "actix-web",
  "liquid",
  "rusqlite",
+ "serde",
  "stable-eyre",
 ]
 
