@@ -4,65 +4,104 @@
         <div>
             <a class="btn btn-primary" href="/add_maincat" role="button">+</a>
             <div class="btn-group">
-                <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"
-                    aria-expanded="false">
+                <button aria-expanded="false" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" type="button">
                     {% case month %}
-                    {% when 0 %} Jan
-                    {% when 1 %} Feb
-                    {% when 2 %} Mar
-                    {% when 3 %} Apr
-                    {% when 4 %} Mai
-                    {% when 5 %} Jun
-                    {% when 6 %} Jul
-                    {% when 7 %} Aug
-                    {% when 8 %} Sep
-                    {% when 9 %} Oct
-                    {% when 10 %} Nov
-                    {% when 11 %} Dec
+                        {% when 0 %}
+                            Jan
+                        {% when 1 %}
+                            Feb
+                        {% when 2 %}
+                            Mar
+                        {% when 3 %}
+                            Apr
+                        {% when 4 %}
+                            Mai
+                        {% when 5 %}
+                            Jun
+                        {% when 6 %}
+                            Jul
+                        {% when 7 %}
+                            Aug
+                        {% when 8 %}
+                            Sep
+                        {% when 9 %}
+                            Oct
+                        {% when 10 %}
+                            Nov
+                        {% when 11 %}
+                            Dec
                     {% endcase %}
                 </button>
                 <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="/month/{{year}}/0">Jan</a></li>
-                    <li><a class="dropdown-item" href="/month/{{year}}/1">Feb</a></li>
-                    <li><a class="dropdown-item" href="/month/{{year}}/2">Mar</a></li>
-                    <li><a class="dropdown-item" href="/month/{{year}}/3">Apr</a></li>
-                    <li><a class="dropdown-item" href="/month/{{year}}/4">Mai</a></li>
-                    <li><a class="dropdown-item" href="/month/{{year}}/5">Jun</a></li>
-                    <li><a class="dropdown-item" href="/month/{{year}}/6">Jul</a></li>
-                    <li><a class="dropdown-item" href="/month/{{year}}/7">Aug</a></li>
-                    <li><a class="dropdown-item" href="/month/{{year}}/8">Sep</a></li>
-                    <li><a class="dropdown-item" href="/month/{{year}}/9">Oct</a></li>
-                    <li><a class="dropdown-item" href="/month/{{year}}/10">Nov</a></li>
-                    <li><a class="dropdown-item" href="/month/{{year}}/11">Dec</a></li>
+                    <li>
+                        <a class="dropdown-item" href="/month/{{year}}/0">Jan</a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="/month/{{year}}/1">Feb</a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="/month/{{year}}/2">Mar</a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="/month/{{year}}/3">Apr</a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="/month/{{year}}/4">Mai</a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="/month/{{year}}/5">Jun</a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="/month/{{year}}/6">Jul</a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="/month/{{year}}/7">Aug</a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="/month/{{year}}/8">Sep</a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="/month/{{year}}/9">Oct</a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="/month/{{year}}/10">Nov</a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="/month/{{year}}/11">Dec</a>
+                    </li>
                 </ul>
             </div>
             <div class="btn-group">
-                <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"
-                    aria-expanded="false">
+                <button aria-expanded="false" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" type="button">
                     {{year}}
                 </button>
                 <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="/month/21/{{month}}">21</a></li>
-                    <li><a class="dropdown-item" href="/month/22/{{month}}">22</a></li>
-                    <li><a class="dropdown-item" href="/month/23/{{month}}">23</a></li>
+                    <li>
+                        <a class="dropdown-item" href="/month/21/{{month}}">21</a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="/month/22/{{month}}">22</a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="/month/23/{{month}}">23</a>
+                    </li>
                 </ul>
             </div>
         </div>
     </div>
 </nav>
 
-
 <div class="col">
     {% for c in categories %}
-    <a href="/maincat/{{ c.id }}">
-        <div class="main-kat">
-            {{c.name}}
-            {% for s in c.sc %}
-            <div class="sub-kat">
-                {{s.name}}
+        <a href="/maincat/{{ c.id }}">
+            <div class="main-kat">
+                {{c.name}}
+                {% for s in c.sc %}
+                    <div class="sub-kat">
+                        {{s.name}}
+                    </div>
+                {% endfor %}
             </div>
-            {% endfor %}
-        </div>
-    </a>
+        </a>
     {% endfor %}
 </div>

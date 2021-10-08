@@ -12,7 +12,7 @@ use std::path::Path;
 
 use serde::{Deserialize, Serialize};
 
-use crate::data::{create_sub_category, get_all_main_categories};
+use crate::data::{create_sub_category, get_all_main_categories, get_payee_datalist};
 
 mod data;
 mod db;
@@ -30,6 +30,8 @@ async fn main() -> std::io::Result<()> {
             .service(net_get_maincat)
             .service(net_post_add_maincat)
             .service(net_get_add_subcat)
+            .service(net_post_add_transact)
+            .service(net_get_add_transact)
             .service(net_delete_subcat)
             .service(net_post_add_subcat)
             .service(net_set_month)
@@ -67,7 +69,8 @@ async fn net_set_month(
 fn render_with_theme(path: &str, data: Object) -> Result<HttpResponse, Error> {
     let doc = std::fs::read_to_string(path)?;
     let theme = std::fs::read_to_string("html/theme.liquid")?;
-    let theme_data = object!({ "content": doc });
+    let payee_datalist = get_payee_datalist()?;
+    let theme_data = object!({ "content": doc, "payee_datalist": payee_datalist });
 
     let r = ParserBuilder::with_stdlib()
         .build()
@@ -167,6 +170,23 @@ struct NewSubcat {
 
 #[post("/add_subcat")]
 async fn net_post_add_subcat(form: web::Form<NewSubcat>) -> Result<HttpResponse, Error> {
+    let f = form.into_inner();
+    create_sub_category(f.name, f.id)?;
+    Ok(HttpResponse::Found()
+        .header("Location", format!("/maincat/{}", f.id))
+        .finish())
+}
+
+#[get("/add_transact")]
+async fn net_get_add_transact(session: Session) -> Result<HttpResponse, Error> {
+    let month = session.get::<u16>("month")?.unwrap_or(0);
+    let year = session.get::<u16>("year")?.unwrap_or(21);
+    let a = get_all_main_categories(year, month)?;
+    render_with_theme("html/add-transact.liquid", object!({ "categories": a }))
+}
+
+#[post("/add_transact")]
+async fn net_post_add_transact(form: web::Form<NewSubcat>) -> Result<HttpResponse, Error> {
     let f = form.into_inner();
     create_sub_category(f.name, f.id)?;
     Ok(HttpResponse::Found()

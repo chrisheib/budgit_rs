@@ -64,3 +64,14 @@ pub fn delete_sub_category(subcat_id: u16) -> Result<(), Error> {
     let sql = "DELETE FROM unterkat WHERE id = ?";
     adb_execute(sql, [subcat_id])
 }
+
+pub fn get_payee_datalist() -> Result<Value, Error> {
+    let sql = "SELECT name FROM zahlempf GROUP BY name";
+    let a: Vec<String> = adb_query_vec(sql, [], |r| {
+        format!(
+            "<option value=\"{}\">\n",
+            r.get::<_, String>("name").unwrap()
+        )
+    })?;
+    Ok(value!(a.into_iter().collect::<String>()))
+}

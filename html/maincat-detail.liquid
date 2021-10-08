@@ -7,11 +7,15 @@
 <div>
     <h1>{{category.name}}</h1>
 </div>
-<div class="bg-dark d-grid gap-2">
+<div class="container bg-dark d-grid gap-2">
     {% for s in category.sc %}
-    <div class="container-fluid">
-        <a class="" href="/">{{s.name}}</a>
-        <a class="btn btn-danger" href="/del_subcat/{{category.id}}/{{s.id}}" role="button">-</a>
-    </div>
+        <div class="row">
+            <div class="col">
+                <a class="" href="/">{{s.name}}</a>
+            </div>
+            <div class="col">
+                <a class="btn btn-danger" href="/del_subcat/{{category.id}}/{{s.id}}" role="button">-</a>
+            </div>
+        </div>
     {% endfor %}
 </div>
