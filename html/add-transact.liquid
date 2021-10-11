@@ -13,13 +13,13 @@
                 <label class="form-label" for="value">Wert</label>
             </div>
             <div class="row">
-                <input class="mx-1 row" min="0" name="value" placeholder="0.00" placeholder="Wert" step="0.01" style="text-align: right;" type="number">
+                <input class="mx-1 row" min="0" name="amount" placeholder="0.00" placeholder="Wert" step="0.01" style="text-align: right;" type="number">
             </div>
         </div>
         <div class="mb-3">
             <div class="row">
                 <label class="form-label" for="subcat">Kategorie</label>
-                <select aria-label="Default select example" class="form-select" name="subcat">
+                <select aria-label="Default select example" class="form-select" name="subcatid">
                     {% for c in categories %}
                         {% for sc in c.sc %}
                             <option value="{{sc.id}}">({{ c.name }})
@@ -34,7 +34,7 @@
                 <label class="form-label" for="value">Person</label>
             </div>
             <div class="row">
-                <input class="mx-1 row" list="payee_datalist" name="value" placeholder="Person" type="text">
+                <input class="mx-1 row" list="payee_datalist" name="payee" placeholder="Person" type="text">
             </div>
         </div>
         <div class="mb-3">

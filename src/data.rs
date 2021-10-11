@@ -5,15 +5,15 @@ use liquid::{
 };
 use rusqlite::Row;
 
-use crate::db::{adb_execute, adb_execute_batch, adb_query_vec};
+use crate::db::{adb_execute, adb_execute_batch, adb_query_vec, adb_select};
 
 pub fn create_tables() -> Result<(), Error> {
     let s = "CREATE TABLE konto (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT);
     CREATE TABLE hauptkat (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, notiz TEXT, anzeige TEXT);
     CREATE TABLE unterkat (id INTEGER PRIMARY KEY AUTOINCREMENT, hauptkatid INTEGER, name TEXT, notiz TEXT, anzeige TEXT);
     CREATE TABLE unterkat_monat (id INTEGER PRIMARY KEY AUTOINCREMENT, subkatid INTEGER, jahr TEXT, monat TEXT, betrag REAL);
-    CREATE TABLE zahlempf (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, unterkatid INTEGER, anzeigen TEXT);
-    CREATE TABLE eintrag (id INTEGER PRIMARY KEY AUTOINCREMENT, kontoid INTEGER, unterkatid INTEGER, splitid INTEGER, zahlempf TEXT, datum DATE, betrag REAL, richtung TEXT);
+    CREATE TABLE zahlempf (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE, unterkatid INTEGER, anzeigen TEXT);
+    CREATE TABLE eintrag (id INTEGER PRIMARY KEY AUTOINCREMENT, kontoid INTEGER, unterkatid INTEGER, splitid INTEGER, zahlempf TEXT, datum DATE, betrag REAL);
     CREATE TABLE split (id INTEGER PRIMARY KEY AUTOINCREMENT, kontoid INTEGER, unterkatid INTEGER, zahlempfid INTEGER, betrag REAL);
     CREATE TABLE wiederkehrend (id INTEGER PRIMARY KEY AUTOINCREMENT, typ INTEGER, nextdatum DATE, kontoid INTEGER, unterkatid INTEGER, splitid INTEGER, zahlempfid INTEGER, betrag REAL, richtung TEXT, zielbetrag REAL);";
 
@@ -74,4 +74,27 @@ pub fn get_payee_datalist() -> Result<Value, Error> {
         )
     })?;
     Ok(value!(a.into_iter().collect::<String>()))
+}
+
+pub fn get_payee_id(name: String) -> Result<u32, Error> {
+    adb_select("SELECT id FROM zahlempf WHERE name = ?", &[&name], |r| {
+        r.get::<_, u32>("id")
+    })
+}
+
+pub fn add_transact(
+    subcatid: String,
+    payee: String,
+    date: String,
+    amount: String,
+) -> Result<(), Error> {
+    let sql = "INSERT OR IGNORE INTO zahlempf (name) values (?)";
+    adb_execute(sql, &[&payee])?;
+
+    let payee_id = get_payee_id(payee)?;
+
+    let sql = "INSERT INTO eintrag (kontoid, unterkatid, splitid, zahlempf, datum, betrag)
+        values (0, ?, 0, ?, ?, ?)";
+
+    adb_execute(sql, &[&subcatid, &payee_id.to_string(), &date, &amount])
 }

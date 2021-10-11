@@ -6,7 +6,9 @@ use actix_web::{
     http::header::{ContentDisposition, DispositionParam, DispositionType},
     post, web, App, Error, HttpResponse, HttpServer,
 };
-use data::{create_main_category, create_tables, delete_sub_category, get_main_category};
+use data::{
+    add_transact, create_main_category, create_tables, delete_sub_category, get_main_category,
+};
 use liquid::{object, Object, ParserBuilder};
 use std::path::Path;
 
@@ -185,13 +187,23 @@ async fn net_get_add_transact(session: Session) -> Result<HttpResponse, Error> {
     render_with_theme("html/add-transact.liquid", object!({ "categories": a }))
 }
 
+#[derive(Deserialize, Serialize, Debug)]
+struct NewTransact {
+    subcatid: String,
+    payee: String,
+    date: String,
+    amount: f64,
+}
+
 #[post("/add_transact")]
-async fn net_post_add_transact(form: web::Form<NewSubcat>) -> Result<HttpResponse, Error> {
+async fn net_post_add_transact(form: web::Form<NewTransact>) -> Result<HttpResponse, Error> {
+    println!("{:?}", form);
     let f = form.into_inner();
-    create_sub_category(f.name, f.id)?;
-    Ok(HttpResponse::Found()
-        .header("Location", format!("/maincat/{}", f.id))
-        .finish())
+    println!("{:?}", f);
+
+    add_transact(f.subcatid, f.payee, f.date, f.amount.to_string())?;
+
+    Ok(HttpResponse::Found().header("Location", "/").finish())
 }
 
 #[get("/init")]

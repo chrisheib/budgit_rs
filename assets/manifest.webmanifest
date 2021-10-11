@@ -1,0 +1,8 @@
+{
+    "name": "Budgit",
+    "short_name": "Budgit",
+    "start_url": "/",
+    "display": "window-control-overlay",
+    "background_color": "#fff",
+    "description": "BUDGIT!!!!"
+}
