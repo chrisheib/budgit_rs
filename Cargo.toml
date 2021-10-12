@@ -17,3 +17,4 @@ stable-eyre = "0.2.2"
 liquid = "0.23.0"
 actix-session = "0.4.1"
 serde = {version = "1.0.130", features = ["serde_derive"]}
+json = "0.12.4"

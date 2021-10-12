@@ -2,72 +2,72 @@
     <div class="container-fluid">
         <a class="navbar-brand" href="/">BUDGIT!!!</a>
         <div>
-            <a class="btn btn-primary" href="/add_maincat" role="button">+</a>
+            <!-- <a class="btn btn-primary" href="/add_maincat" role="button">+</a> -->
             <div class="btn-group">
                 <button aria-expanded="false" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" type="button">
                     {% case month %}
-                        {% when 0 %}
-                            Jan
                         {% when 1 %}
-                            Feb
+                            Jan
                         {% when 2 %}
-                            Mar
+                            Feb
                         {% when 3 %}
-                            Apr
+                            Mar
                         {% when 4 %}
-                            Mai
+                            Apr
                         {% when 5 %}
-                            Jun
+                            Mai
                         {% when 6 %}
-                            Jul
+                            Jun
                         {% when 7 %}
-                            Aug
+                            Jul
                         {% when 8 %}
-                            Sep
+                            Aug
                         {% when 9 %}
-                            Oct
+                            Sep
                         {% when 10 %}
-                            Nov
+                            Oct
                         {% when 11 %}
+                            Nov
+                        {% when 12 %}
                             Dec
                     {% endcase %}
                 </button>
                 <ul class="dropdown-menu">
                     <li>
-                        <a class="dropdown-item" href="/month/{{year}}/0">Jan</a>
+                        <a class="dropdown-item" href="/month/{{year}}/1">Jan</a>
                     </li>
                     <li>
-                        <a class="dropdown-item" href="/month/{{year}}/1">Feb</a>
+                        <a class="dropdown-item" href="/month/{{year}}/2">Feb</a>
                     </li>
                     <li>
-                        <a class="dropdown-item" href="/month/{{year}}/2">Mar</a>
+                        <a class="dropdown-item" href="/month/{{year}}/3">Mar</a>
                     </li>
                     <li>
-                        <a class="dropdown-item" href="/month/{{year}}/3">Apr</a>
+                        <a class="dropdown-item" href="/month/{{year}}/4">Apr</a>
                     </li>
                     <li>
-                        <a class="dropdown-item" href="/month/{{year}}/4">Mai</a>
+                        <a class="dropdown-item" href="/month/{{year}}/5">Mai</a>
                     </li>
                     <li>
-                        <a class="dropdown-item" href="/month/{{year}}/5">Jun</a>
+                        <a class="dropdown-item" href="/month/{{year}}/6">Jun</a>
                     </li>
                     <li>
-                        <a class="dropdown-item" href="/month/{{year}}/6">Jul</a>
+                        <a class="dropdown-item" href="/month/{{year}}/7">Jul</a>
                     </li>
                     <li>
-                        <a class="dropdown-item" href="/month/{{year}}/7">Aug</a>
+                        <a class="dropdown-item" href="/month/{{year}}/8">Aug</a>
                     </li>
                     <li>
-                        <a class="dropdown-item" href="/month/{{year}}/8">Sep</a>
+                        <a class="dropdown-item" href="/month/{{year}}/9">Sep</a>
                     </li>
                     <li>
-                        <a class="dropdown-item" href="/month/{{year}}/9">Oct</a>
+                        <a class="dropdown-item" href="/month/{{year}}/10">Oct</a>
                     </li>
                     <li>
-                        <a class="dropdown-item" href="/month/{{year}}/10">Nov</a>
+                        <a class="dropdown-item" href="/month/{{year}}/11">Nov</a>
                     </li>
                     <li>
-                        <a class="dropdown-item" href="/month/{{year}}/11">Dec</a>
+                        <a class="dropdown-item" href="/month/{{year}}/12">Dec</a>
                     </li>
                 </ul>
             </div>
@@ -91,17 +91,44 @@
     </div>
 </nav>
 
-<div class="col">
+<div class="bg-dark">
+    <div class="container">
+        <div class="row subkat">
+            <div class="col-6"></div>
+            <div class="col-3 form-text" style="text-align: center;">Budget</div>
+            <div class="col-3 form-text" style="text-align: center;">Spent</div>
+        </div>
+    </div>
     {% for c in categories %}
-        <a href="/maincat/{{ c.id }}">
-            <div class="main-kat">
-                {{c.name}}
-                {% for s in c.sc %}
-                    <div class="sub-kat">
-                        {{s.name}}
-                    </div>
-                {% endfor %}
-            </div>
-        </a>
+        <div class="main-kat container" cat_id="{{ c.id }}">
+            {{c.name}}
+            {% for s in c.sc %}
+                <div class="subkat bg container row align-items-center">
+                    <div class="col-6 text-truncate">{{s.name}}</div>
+                    <input class="col-3" min="0" name="budgeted" placeholder="0.00" placeholder="{{ s.budgeted }}" step="0.01" style="text-align: right; z-index: 2;" type="number">
+                    <div class="col-3 pr-2 currency" style="text-align: end;">{{s.spent}}</div>
+                </div>
+            {% endfor %}
+        </div>
     {% endfor %}
 </div>
+<a class="btn btn-secondary btn-sm m-2" href="/add_maincat" role="button">Kategorie hinzufügen...</a>
+
+<script>
+    (function () {
+        for (let mk_div of document.getElementsByClassName("main-kat")) {
+            mk_div.addEventListener("click", function (e) {
+                e = window.event || e;
+                if (e.target.nodeName != "INPUT") {
+                    let id = mk_div.getAttribute("cat_id");
+                    location.href = "/maincat/" + id;
+                }
+            });
+        };
+        for (let cur_div of document.getElementsByClassName("currency")) {
+            let c = parseFloat(cur_div.textContent.replace(",", ".")).toFixed(2);
+            c = c.replace(".", ",") + " €";
+            cur_div.textContent = c;
+        };
+    })()
+</script>

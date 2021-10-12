@@ -3,7 +3,6 @@ use liquid::{
     model::{value, Value},
     object, Object,
 };
-use rusqlite::Row;
 
 use crate::db::{adb_execute, adb_execute_batch, adb_query_vec, adb_select};
 
@@ -11,7 +10,7 @@ pub fn create_tables() -> Result<(), Error> {
     let s = "CREATE TABLE konto (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT);
     CREATE TABLE hauptkat (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, notiz TEXT, anzeige TEXT);
     CREATE TABLE unterkat (id INTEGER PRIMARY KEY AUTOINCREMENT, hauptkatid INTEGER, name TEXT, notiz TEXT, anzeige TEXT);
-    CREATE TABLE unterkat_monat (id INTEGER PRIMARY KEY AUTOINCREMENT, subkatid INTEGER, jahr TEXT, monat TEXT, betrag REAL);
+    CREATE TABLE unterkat_monat (id INTEGER PRIMARY KEY AUTOINCREMENT, unterkatid INTEGER, jahr TEXT, monat TEXT, betrag REAL);
     CREATE TABLE zahlempf (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE, unterkatid INTEGER, anzeigen TEXT);
     CREATE TABLE eintrag (id INTEGER PRIMARY KEY AUTOINCREMENT, kontoid INTEGER, unterkatid INTEGER, splitid INTEGER, zahlempf TEXT, datum DATE, betrag REAL);
     CREATE TABLE split (id INTEGER PRIMARY KEY AUTOINCREMENT, kontoid INTEGER, unterkatid INTEGER, zahlempfid INTEGER, betrag REAL);
@@ -20,34 +19,50 @@ pub fn create_tables() -> Result<(), Error> {
     adb_execute_batch(s)
 }
 
-pub fn get_all_main_categories(_year: u16, _month: u16) -> Result<Value, Error> {
+pub fn get_all_main_categories(year: u16, month: u16) -> Result<Value, Error> {
     let sql = "SELECT * FROM hauptkat";
-    let a: Vec<Object> = adb_query_vec(sql, [], fetch_main_category)?;
-    Ok(value!(&a[..]))
-}
-
-pub fn get_main_category(_year: u16, _month: u16, id: u16) -> Result<Object, Error> {
-    let sql = "SELECT * FROM hauptkat where id = ?";
-    let a: Vec<Object> = adb_query_vec(sql, [id], fetch_main_category)?;
-    Ok(a.first().unwrap().clone())
-}
-
-pub fn get_sub_categories(main_cat: &str) -> Result<Value, Error> {
-    let sql = "SELECT * FROM unterkat WHERE hauptkatid = ?";
-    let a: Vec<Object> = adb_query_vec(sql, [main_cat], |r| {
+    let a: Vec<Object> = adb_query_vec(sql, [], |r| {
         let name: String = r.get("name").unwrap();
-        let id: u16 = r.get("id").unwrap();
-        object!({ "name": name , "id": id})
+        let id = r.get::<_, u32>("id").unwrap();
+        let id = id.to_string();
+        let subcat = get_sub_categories(&id, year, month).unwrap();
+        object!({ "name": name, "id": id , "sc": subcat})
     })?;
     Ok(value!(&a[..]))
 }
 
-pub fn fetch_main_category(r: &Row) -> Object {
-    let name: String = r.get("name").unwrap();
-    let id = r.get::<_, u32>("id").unwrap();
-    let id = id.to_string();
-    let subcat = get_sub_categories(&id).unwrap();
-    object!({ "name": name, "id": id , "sc": subcat})
+pub fn get_main_category(year: u16, month: u16, id: u16) -> Result<Object, Error> {
+    let sql = "SELECT * FROM hauptkat where id = ?";
+    let a: Vec<Object> = adb_query_vec(sql, [id], |r| {
+        let name: String = r.get("name").unwrap();
+        let id = r.get::<_, u32>("id").unwrap();
+        let id = id.to_string();
+        let subcat = get_sub_categories(&id, year, month).unwrap();
+        object!({ "name": name, "id": id , "sc": subcat})
+    })?;
+    Ok(a.first().unwrap().clone())
+}
+
+pub fn get_sub_categories(main_cat: &str, year: u16, month: u16) -> Result<Value, Error> {
+    let sql = "SELECT u.*,
+        IFNULL((SELECT sum(e.betrag) FROM eintrag e WHERE DATE(e.datum, 'start of month') = Date(?) AND u.id = e.unterkatid), 0) spent,
+        IFNULL((SELECT um.betrag FROM unterkat_monat um WHERE um.jahr = ? AND um.monat = ? AND um.unterkatid = u.id), 0) budgeted
+        FROM unterkat u
+        WHERE u.hauptkatid = ?";
+    let p = [
+        &format!("20{:02}-{:02}-01", year, month),
+        &year.to_string(),
+        &month.to_string(),
+        main_cat,
+    ];
+    let a: Vec<Object> = adb_query_vec(sql, p, |r| {
+        let name: String = r.get("name").unwrap();
+        let id: u16 = r.get("id").unwrap();
+        let budgeted: f64 = r.get("budgeted").unwrap();
+        let spent: f64 = r.get("spent").unwrap();
+        object!({ "name": name , "id": id, "budgeted": budgeted, "spent": spent})
+    })?;
+    Ok(value!(&a[..]))
 }
 
 pub fn create_main_category(name: String) -> Result<(), Error> {

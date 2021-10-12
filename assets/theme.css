@@ -15,11 +15,16 @@ body {
     font-size: larger;
 }
 
-.sub-kat {
+.subkat {
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.subkat.bg {
+    border-bottom: 1px solid #33A;
+    --bs-gutter-x: 0px !important;
     font-size: medium;
     background: #003;
-    padding-left: 10px;
-    border-bottom: 1px solid #33A;
 }
 
 nav.fixed-bottom {

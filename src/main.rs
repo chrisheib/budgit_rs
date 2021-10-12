@@ -197,9 +197,7 @@ struct NewTransact {
 
 #[post("/add_transact")]
 async fn net_post_add_transact(form: web::Form<NewTransact>) -> Result<HttpResponse, Error> {
-    println!("{:?}", form);
     let f = form.into_inner();
-    println!("{:?}", f);
 
     add_transact(f.subcatid, f.payee, f.date, f.amount.to_string())?;
 
